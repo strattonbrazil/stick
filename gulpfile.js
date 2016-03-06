@@ -1,6 +1,9 @@
 var gulp = require('gulp');
-var electron = require('gulp-electron');
+var gulpElectron = require('gulp-electron');
 var deepcopy = require("deepcopy");
+var electronBin = require("electron-prebuilt");
+var proc = require('child_process');
+var path = require('path');
 
 var packageJson = require('./src/package.json');
 
@@ -36,7 +39,7 @@ options = {
 
 gulp.task('build', function() {
     gulp.src("")
-    .pipe(electron(options))
+    .pipe(gulpElectron(options))
     .pipe(gulp.dest(""));
 });
 
@@ -45,6 +48,16 @@ gulp.task('package', function() {
     packageOptions.packaging = true;
 
     gulp.src("")
-    .pipe(electron(packageOptions))
+    .pipe(gultElectron(packageOptions))
     .pipe(gulp.dest(""));
+});
+
+gulp.task('run', function() {
+    var appDir = path.join(__dirname, './src');
+
+    // adapted from electron-prebuilt cli.js
+    var child = proc.spawn(electronBin, [ appDir ], {stdio: 'inherit'})
+    child.on('close', function (code) {
+        process.exit(code)
+    });
 });
